@@ -10,7 +10,9 @@ describe User do
 	it{ should respond_to(:password_digest)}
 	it{ should respond_to(:password)}
 	it{ should respond_to(:password_confirmation)}
+  it{ should respond_to(:remember_token)}
 	it { should respond_to(:authenticate)}
+
 
 	it{ should be_valid}
 
@@ -40,9 +42,9 @@ describe User do
   				expect(@user).not_to be_valid
   			end
   		end
-  	end
+  end
 
-  	describe "when email format is valid" do
+  describe "when email format is valid" do
   		it "should be valid" do
   			addresses = %w[user@foo.COM A_US-ER@f.b.org frst.lst@foo.jp a+b@baz.cn]
   			addresses.each do |valid_address|
@@ -50,35 +52,35 @@ describe User do
   				expect(@user).to be_valid
   			end
   		end
-  	end
+  end
 
-  	describe "when email address is already taken" do
+  describe "when email address is already taken" do
   		before do
   			user_with_same_email = @user.dup
   			user_with_same_email.email = @user.email.upcase
   			user_with_same_email.save
   		end
   		it {should_not be_valid}
-  	end
+  end
 
-  	describe "when password is not present" do
+  describe "when password is not present" do
   		before do
   			@user = User.new(name: "Example user", email: "user@example.com", password: " ", password_confirmation: " ")
   		end
   		it {should_not be_valid}
-  	end
+  end
 
-  	describe "when password doesn't match confirmation" do
+  describe "when password doesn't match confirmation" do
   		before {@user.password_confirmation = "mismatch"}
   		it { should_not be_valid}
-  	end  
+  end  
 
-  	describe "with a password that's too short" do
+  describe "with a password that's too short" do
     	before { @user.password = @user.password_confirmation = "a" * 5 }
     	it { should be_invalid }
-  	end
+  end
 
-  	describe "return value of authenticate method" do
+  describe "return value of authenticate method" do
     	before { @user.save }
     	let(:found_user) { User.find_by(email: @user.email) }
 
@@ -92,5 +94,10 @@ describe User do
       		it { should_not eq user_for_invalid_password }
       		specify { expect(user_for_invalid_password).to be_false }
     	end
-  	end
+  end
+
+  describe "remember token" do
+    before {@user.save}
+    its(:remember_token) {should_not be_blank}
+  end
 end
